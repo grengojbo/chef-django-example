@@ -22,45 +22,64 @@ end
 # Then creates a group for each group defined in the JSON.
 
 
-if node.attribute?("all_servers")
-  template "/etc/hosts" do
-    source "hosts"
-    mode 644
-    variables :all_servers => node[:all_servers] || {}
-  end
-end
+#if node.attribute?("all_servers")
+#  template "/etc/hosts" do
+#    source "hosts"
+#    mode 644
+#    variables :all_servers => node[:all_servers] || {}
+#  end
+#end
 
-node[:users].each_pair do |username, info|
-    group username do
-       gid info[:id]
-    end
+#user "#{node[:django][:users]}" do
+#  comment "Django App"
+#  uid "5001"
+#  gid 5001
+#  home "#{node[:django][:homedir]}/#{node[:django][:users]}"
+#  #system true
+#  shell info[:disabled] ? "/sbin/nologin" : "/bin/bash"
+#  manage_home true
+#end
+#node[:users].each_pair do |username, info|
+#    group username do
+#       gid info[:id]
+#    end
+#
+#    user username do
+#        comment info[:full_name]
+#        uid info[:id]
+#        gid info[:id]
+#        shell info[:disabled] ? "/sbin/nologin" : "/bin/bash"
+#        supports :manage_home => true
+#        home "/home/#{username}"
+#    end
+#
+#    directory "/home/#{username}/.ssh" do
+#        owner username
+#        group username
+#        mode 0700
+#    end
+#
+#    file "/home/#{username}/.ssh/authorized_keys" do
+#        owner username
+#        group username
+#        mode 0600
+#        content info[:key]
+#    end
+#end
+#
+#node[:groups].each_pair do |name, info|
+#    group name do
+#        gid info[:gid]
+#        members info[:members]
+#    end
+#end
 
-    user username do
-        comment info[:full_name]
-        uid info[:id]
-        gid info[:id]
-        shell info[:disabled] ? "/sbin/nologin" : "/bin/bash"
-        supports :manage_home => true
-        home "/home/#{username}"
-    end
-
-    directory "/home/#{username}/.ssh" do
-        owner username
-        group username
-        mode 0700
-    end
-
-    file "/home/#{username}/.ssh/authorized_keys" do
-        owner username
-        group username
-        mode 0600
-        content info[:key]
-    end
-end
-
-node[:groups].each_pair do |name, info|
-    group name do
-        gid info[:gid]
-        members info[:members]
-    end
+application node[:django][:application] do
+  path "#{node[:django][:homedir]}/#{node[:django][:users]}/#{node[:django][:application]}"
+  owner node[:django][:users]
+  group node[:django][:groups]
+  repository node[:django][:repository]
+  revision node[:django][:revision]
+  migrate true
+  packages ["libpq-dev", "git-core", "mercurial"]
 end
