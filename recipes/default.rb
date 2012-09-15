@@ -82,4 +82,20 @@ application node[:django][:application] do
   revision node[:django][:revision]
   migrate true
   packages ["libpq-dev", "git-core", "mercurial"]
+
+  django do
+    packages ["redis"]
+    requirements "requirements/mkii.txt"
+    settings_template "settings.py.erb"
+    debug true
+    collectstatic "build_static --noinput"
+    database do
+      database "packaginator"
+      engine "sqlite3"
+      username "packaginator"
+      password "awesome_password"
+    end
+    database_master_role "packaginator_database_master"
+  end
+
 end
