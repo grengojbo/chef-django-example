@@ -24,6 +24,10 @@ The following Opscode cookbooks are dependencies:
 * gunicorn
 * supervisor
 
+Необходимо установить Gem
+
+    gem install ruby-shadow
+
 Resources/Providers
 ==========
 
@@ -31,3 +35,13 @@ The LWRPs provided by this cookbook are not meant to be used by themselves; make
 
 django
 ------
+
+Use knife to create a data bag for users. Используйте **knife**, чтобы создать **data bag** для пользователей.
+
+    knife data bag create users
+
+Create a user in the data_bag/users/ directory. Создайте пользователя в **data_bag/users/** каталоге.
+
+    knife data bag users <User Name>
+    "recipe[django::default]",
+    "recipe[user]",
