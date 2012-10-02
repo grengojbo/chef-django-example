@@ -1,16 +1,14 @@
 #
 # Basic server config: basic users, packages, etc.
 #
-
-### Packages
-# Just base packages required by the whole system here, please. Dependencies
-# for other recipes should live int hose recipes.
-
-node[:base_packages].each do |pkg|
+node[:django][:base_packages].each do |pkg|
     package pkg do
         :upgrade
     end
 end
+### Packages
+# Just base packages required by the whole system here, please. Dependencies
+# for other recipes should live int hose recipes.
 
 ### Users/groups
 
@@ -30,15 +28,6 @@ end
 #  end
 #end
 
-#user "#{node[:django][:users]}" do
-#  comment "Django App"
-#  uid "5001"
-#  gid 5001
-#  home "#{node[:django][:homedir]}/#{node[:django][:users]}"
-#  #system true
-#  shell info[:disabled] ? "/sbin/nologin" : "/bin/bash"
-#  manage_home true
-#end
 #node[:users].each_pair do |username, info|
 #    group username do
 #       gid info[:id]
@@ -69,33 +58,32 @@ end
 #
 #node[:groups].each_pair do |name, info|
 #    group name do
-#        gid info[:gid]
-#        members info[:members]
-#    end
-#end
-
 application node[:django][:application] do
   path "#{node[:django][:homedir]}/#{node[:django][:users]}/#{node[:django][:application]}"
   owner node[:django][:users]
   group node[:django][:groups]
   repository node[:django][:repository]
   revision node[:django][:revision]
+  action :force_deploy
+  force true
   migrate true
-  packages ["libpq-dev", "git-core", "mercurial"]
-
-  django do
+  packages ["git-core", "mercurial", "python-pysqlite2", "python-virtualenv", "virtualenvwrapper"]
+  deploy_key ::File.open("/opt/djangotest/.ssh/id_dsa", "r"){ |file| file.read } 
+  
+  django do 
     packages ["redis"]
-    requirements "requirements/mkii.txt"
-    settings_template "settings.py.erb"
+    #deploy_to "/opt/djangotest/django-app/releases"
+    #requirements "requirements/mkii.txt"
+    #settings_template "settings.py.erb"
     debug true
     collectstatic "build_static --noinput"
     database do
       database "packaginator"
       engine "sqlite3"
+      adapter "sqlite3"
       username "packaginator"
       password "awesome_password"
     end
-    database_master_role "packaginator_database_master"
+    #database_master_role "packaginator_database_master"
   end
-
 end

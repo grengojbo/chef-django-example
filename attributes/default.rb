@@ -17,7 +17,7 @@
 # limitations under the License.
 #
 
-default[:django][:base_packages] = %w(git-core bash-completion nmap)
+default[:django][:base_packages] = %w(git-core bash-completion nmap libshadow-ruby1.8)
 default[:django][:ubuntu_python_packages] = %w(python-setuptools python-pip python-dev libpq-dev)
 default[:django][:application] = "my-app"
 default[:django][:users] = "djangoapp"
