@@ -86,4 +86,10 @@ application node[:django][:application] do
     end
     #database_master_role "packaginator_database_master"
   end
+
+  gunicorn do
+    #only_if { node['roles'].include? 'packaginator_application_server' }
+    app_module :django
+    port 8080
+  end
 end
