@@ -61,20 +61,20 @@ end
 application node[:django][:application] do
   path "#{node[:django][:homedir]}/#{node[:django][:users]}/#{node[:django][:application]}"
   owner node[:django][:users]
-  group node[:django][:groups]
+  group node[:django][:users]
   repository node[:django][:repository]
   revision node[:django][:revision]
   action :force_deploy
   force true
-  migrate true
+  #migrate true
   packages ["git-core", "mercurial", "python-pysqlite2", "python-virtualenv", "virtualenvwrapper"]
   deploy_key ::File.open("/opt/djangotest/.ssh/id_dsa", "r"){ |file| file.read } 
   
   django do 
-    packages ["redis"]
-    #deploy_to "/opt/djangotest/django-app/releases"
-    #requirements "requirements/mkii.txt"
-    #settings_template "settings.py.erb"
+  #  packages ["redis"]
+  #  #deploy_to "/opt/djangotest/django-app/releases"
+  #  #requirements "requirements/mkii.txt"
+  #  #settings_template "settings.py.erb"
     debug true
     collectstatic "build_static --noinput"
     database do
@@ -84,12 +84,12 @@ application node[:django][:application] do
       username "packaginator"
       password "awesome_password"
     end
-    #database_master_role "packaginator_database_master"
+  #  #database_master_role "packaginator_database_master"
   end
 
-  gunicorn do
-    #only_if { node['roles'].include? 'packaginator_application_server' }
-    app_module :django
-    port 8080
-  end
+  #gunicorn do
+  #  #only_if { node['roles'].include? 'packaginator_application_server' }
+  #  app_module :django
+  #  port 8080
+  #end
 end
