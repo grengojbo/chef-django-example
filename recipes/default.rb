@@ -59,13 +59,16 @@ end
 #node[:groups].each_pair do |name, info|
 #    group name do
 Chef::Log.info("################### Django #####################")
-u = search(:users, "id:#{node['django']['users']}")
-id = u['username'] || u['id']
+#u = search(:users, "id:#{node['django']['users']}")
+#id = u['username'] || u['id']
+#Chef::Log.info("Username: #{id} Home Dir: #{u['home']}")
 
 application node[:django][:application] do
   path "#{node[:django][:homedir]}/#{node[:django][:users]}/#{node[:django][:application]}"
-  owner id
-  group id
+  #owner id
+  #group id
+  owner node[:django][:users]
+  group node[:django][:users]
   repository node[:django][:repository]
   revision node[:django][:revision]
   enable_submodules true
@@ -104,7 +107,7 @@ end
 
 #bag = node['user']['data_bag_name']
 #u = data_bag_item(bag, "username:#{node[:django][:users]}")
-search(:users, "id:#{node['django']['users']}") do |u|
-  id = u['username'] || u['id']
-  Chef::Log.info("Username: #{id} Home Dir: #{u['home']}")
-end
+#search(:users, "id:#{node['django']['users']}") do |u|
+#  id = u['username'] || u['id']
+#  Chef::Log.info("Username: #{id} Home Dir: #{u['home']}")
+#end
