@@ -11,25 +11,27 @@ node[:django][:base_packages].each do |pkg|
     end
 end
 Chef::Log.info("################### Django #####################")
-search(:users, "id:#{node['django']['users']}") do |u|
+search(:apps, "id:#{node['django']['application']}") do |a|
+ search(:users, "id:#{a['user']}") do |u|
   username = u['username'] || u['id']
 
-  application node[:django][:application] do
-    path "#{node[:django][:homedir]}/#{username}/#{node[:django][:application]}"
+  application a[:id] do
+    path "#{node[:django][:homedir]}/#{username}/#{a[:id]}"
     owner username
     group username
     #owner node[:django][:users]
     #group node[:django][:users]
     #symlink_before_migrate "media"=>"media" 
     symlinks "media"=>"public/media", "db"=>"db", "system"=>"public/system", "log"=>"log"
-    repository node[:django][:repository]
-    revision node[:django][:revision]
+    repository a[:repository]
+    revision a[:revision]
     enable_submodules true
     #action :force_deploy
     force true
     #migrate true
+    #migration_command ""
     packages ["git-core", "mercurial", "python-pysqlite2", "python-virtualenv", "virtualenvwrapper"]
-    deploy_key ::File.open("/opt/djangotest/.ssh/id_dsa", "r") { |file| file.read }
+    deploy_key ::File.open("#{u[:home]}/.ssh/id_dsa", "r") { |file| file.read }
 
     django do
       packages ["redis"]
@@ -43,6 +45,8 @@ search(:users, "id:#{node['django']['users']}") do |u|
       settings_template "local-dist.py.erb"
       debug true
       collectstatic "collectstatic -v 0 --clear --noinput"
+      #manage_py_migration_commands ["compilemessages", "syncdb --noinput --migrate"]
+      manage_py_migration_commands a[:manage_py_migration_commands]
       database do
         database "packaginator"
         engine "sqlite3"
@@ -65,6 +69,7 @@ search(:users, "id:#{node['django']['users']}") do |u|
   #bag = node['user']['data_bag_name']
   #u = data_bag_item(bag, "username:#{node[:django][:users]}")
   #search(:users, "id:#{node['django']['users']}") do |u|
+ end
 end
 ### Users/groups
 
