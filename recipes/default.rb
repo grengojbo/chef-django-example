@@ -61,14 +61,15 @@ end
 Chef::Log.info("################### Django #####################")
 search(:users, "id:#{node['django']['users']}") do |u|
   username = u['username'] || u['id']
-  Chef::Log.info("Username: #{username} Home Dir: #{u['home']}")
 
   application node[:django][:application] do
-    path "#{node[:django][:homedir]}/#{node[:django][:users]}/#{node[:django][:application]}"
-    #owner id
-    #group id
-    owner node[:django][:users]
-    group node[:django][:users]
+    path "#{node[:django][:homedir]}/#{username}/#{node[:django][:application]}"
+    owner username
+    group username
+    #owner node[:django][:users]
+    #group node[:django][:users]
+    #symlink_before_migrate "media"=>"media" 
+    symlinks "media"=>"public/media", "db"=>"db", "system"=>"public/system", "log"=>"log"
     repository node[:django][:repository]
     revision node[:django][:revision]
     enable_submodules true
@@ -89,7 +90,7 @@ search(:users, "id:#{node['django']['users']}") do |u|
       #settings_template "settings.py.erb"
       settings_template "local-dist.py.erb"
       debug true
-      #collectstatic "build_static --noinput"
+      #collectstatic "collectstatic -v 0 --clear --noinput"
       database do
         database "packaginator"
         engine "sqlite3"
@@ -107,7 +108,9 @@ search(:users, "id:#{node['django']['users']}") do |u|
     end
   end
 
-#bag = node['user']['data_bag_name']
-#u = data_bag_item(bag, "username:#{node[:django][:users]}")
-#search(:users, "id:#{node['django']['users']}") do |u|
+  Chef::Log.info("################### Django #####################")
+  Chef::Log.info("Username: #{username} Home Dir: #{u['home']}")
+  #bag = node['user']['data_bag_name']
+  #u = data_bag_item(bag, "username:#{node[:django][:users]}")
+  #search(:users, "id:#{node['django']['users']}") do |u|
 end
