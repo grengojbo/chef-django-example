@@ -59,57 +59,55 @@ end
 #node[:groups].each_pair do |name, info|
 #    group name do
 Chef::Log.info("################### Django #####################")
-#u = search(:users, "id:#{node['django']['users']}")
-#id = u['username'] || u['id']
-#Chef::Log.info("Username: #{u['id']} Home Dir: #{u['home']}")
+search(:users, "id:#{node['django']['users']}") do |u|
+  username = u['username'] || u['id']
+  Chef::Log.info("Username: #{username} Home Dir: #{u['home']}")
 
-application node[:django][:application] do
-  path "#{node[:django][:homedir]}/#{node[:django][:users]}/#{node[:django][:application]}"
-  #owner id
-  #group id
-  owner node[:django][:users]
-  group node[:django][:users]
-  repository node[:django][:repository]
-  revision node[:django][:revision]
-  enable_submodules true
-  #action :force_deploy
-  force true
-  #migrate true
-  packages ["git-core", "mercurial", "python-pysqlite2", "python-virtualenv", "virtualenvwrapper"]
-  deploy_key ::File.open("/opt/djangotest/.ssh/id_dsa", "r"){ |file| file.read } 
-  
-  django do 
-    packages ["redis"]
-    #deploy_to "/opt/djangotest/django-app/releases"
-    requirements "#{node[:django][:homedir]}/#{node[:django][:users]}/#{node[:django][:application]}/shared/cached-copy/requirements/dev.txt"
-    #requirements "requirements/dev.txt"
-    #local_settings_file "local.py"
-    local_settings_file "settings/local.py"
-    base_django_app_path "kvazar"
-    #settings_template "settings.py.erb"
-    settings_template "local-dist.py.erb"
-    debug true
-    #collectstatic "build_static --noinput"
-    database do
-      database "packaginator"
-      engine "sqlite3"
-      adapter "sqlite3"
-      username "packaginator"
-      password "awesome_password"
+  application node[:django][:application] do
+    path "#{node[:django][:homedir]}/#{node[:django][:users]}/#{node[:django][:application]}"
+    #owner id
+    #group id
+    owner node[:django][:users]
+    group node[:django][:users]
+    repository node[:django][:repository]
+    revision node[:django][:revision]
+    enable_submodules true
+    #action :force_deploy
+    force true
+    #migrate true
+    packages ["git-core", "mercurial", "python-pysqlite2", "python-virtualenv", "virtualenvwrapper"]
+    deploy_key ::File.open("/opt/djangotest/.ssh/id_dsa", "r") { |file| file.read }
+
+    django do
+      packages ["redis"]
+      #deploy_to "/opt/djangotest/django-app/releases"
+      requirements "#{node[:django][:homedir]}/#{node[:django][:users]}/#{node[:django][:application]}/shared/cached-copy/requirements/dev.txt"
+      #requirements "requirements/dev.txt"
+      #local_settings_file "local.py"
+      local_settings_file "settings/local.py"
+      base_django_app_path "kvazar"
+      #settings_template "settings.py.erb"
+      settings_template "local-dist.py.erb"
+      debug true
+      #collectstatic "build_static --noinput"
+      database do
+        database "packaginator"
+        engine "sqlite3"
+        adapter "sqlite3"
+        username "packaginator"
+        password "awesome_password"
+      end
+      database_master_role "packaginator_database_master"
     end
-    database_master_role "packaginator_database_master"
-  end
 
-  gunicorn do
-    #only_if { node['roles'].include? 'packaginator_application_server' }
-    app_module :django
-    port 8080
+    gunicorn do
+      #only_if { node['roles'].include? 'packaginator_application_server' }
+      app_module :django
+      port 8080
+    end
   end
-end
 
 #bag = node['user']['data_bag_name']
 #u = data_bag_item(bag, "username:#{node[:django][:users]}")
 #search(:users, "id:#{node['django']['users']}") do |u|
-#  id = u['username'] || u['id']
-#  Chef::Log.info("Username: #{id} Home Dir: #{u['home']}")
-#end
+end
