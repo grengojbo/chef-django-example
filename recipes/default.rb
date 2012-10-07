@@ -58,10 +58,14 @@ end
 #
 #node[:groups].each_pair do |name, info|
 #    group name do
+Chef::Log.info("################### Django #####################")
+u = search(:users, "id:#{node['django']['users']}")
+id = u['username'] || u['id']
+
 application node[:django][:application] do
   path "#{node[:django][:homedir]}/#{node[:django][:users]}/#{node[:django][:application]}"
-  owner node[:django][:users]
-  group node[:django][:users]
+  owner id
+  group id
   repository node[:django][:repository]
   revision node[:django][:revision]
   enable_submodules true
@@ -74,8 +78,10 @@ application node[:django][:application] do
   django do 
     packages ["redis"]
     #deploy_to "/opt/djangotest/django-app/releases"
-    requirements "#{node[:django][:homedir]}/#{node[:django][:users]}/#{node[:django][:application]}/shared/cached-copy/requirements/dev.txt"
-    local_settings_file "local.py"
+    #requirements "#{node[:django][:homedir]}/#{node[:django][:users]}/#{node[:django][:application]}/shared/cached-copy/requirements/dev.txt"
+    requirements "requirements/dev.txt"
+    local_settings_file "settings/local.py"
+    base_django_app_path "kvazar"
     #settings_template "settings.py.erb"
     debug true
     #collectstatic "build_static --noinput"
@@ -98,7 +104,6 @@ end
 
 #bag = node['user']['data_bag_name']
 #u = data_bag_item(bag, "username:#{node[:django][:users]}")
-Chef::Log.info("################### Django #####################")
 search(:users, "id:#{node['django']['users']}") do |u|
   id = u['username'] || u['id']
   Chef::Log.info("Username: #{id} Home Dir: #{u['home']}")
