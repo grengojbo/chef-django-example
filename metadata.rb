@@ -12,3 +12,4 @@ end
 depends "user"
 depends "application"
 depends "application_python"
+depends "application_nginx"

@@ -73,6 +73,16 @@ node[:django][:apps].each do |app|
         port a[:port].to_i
       end
     end 
+    
+    nginx_load_balancer do
+      only_if { node['roles'].include?('load_balancer_app03') }
+      application_server_role "application_server_app03"
+      server_name a[:server_name]
+      server_alias a[:server_alias] if a[:server_alias]
+      application_port a[:port].to_i
+      root_dir "public"
+      static_files "/static" => "public/static", "/media" => "public/media"
+    end
   end
 
   #bag = node['user']['data_bag_name']
